@@ -399,6 +399,13 @@
           ]
         },
         {
+          "group": "messages",
+          "pages": [
+            "docs/reference/messages/agent_messages",
+            "docs/reference/messages/base_message"
+          ]
+        },
+        {
           "group": "oai",
           "pages": [
             "docs/reference/oai/anthropic",
@@ -419,13 +426,13 @@
         {
           "group": "tools",
           "pages": [
+            "docs/reference/tools/function_utils",
             "docs/reference/tools/tool"
           ]
         },
         "docs/reference/browser_utils",
         "docs/reference/code_utils",
         "docs/reference/exception_utils",
-        "docs/reference/function_utils",
         "docs/reference/graph_utils",
         "docs/reference/math_utils",
         "docs/reference/retrieve_utils",
@@ -476,6 +483,8 @@
       "group": "Talks",
       "pages": [
         "talks/future_talks/index",
+        "talks/2024-12-19/index",
+        "talks/2024-12-12/index",
         "talks/2024-11-28/index",
         "talks/2024-11-25/index",
         "talks/2024-11-18/index",
