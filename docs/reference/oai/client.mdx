@@ -112,7 +112,7 @@ def __init__(*,
   They can contain additional kwargs as allowed in the [create](/docs/reference/oai/client#create) method. E.g.,
   
 ```python
-config_list=[
+config_list = [
     {
         "model": "gpt-4",
         "api_key": os.environ.get("AZURE_OPENAI_API_KEY"),
@@ -129,7 +129,7 @@ config_list=[
     {
         "model": "llama-7B",
         "base_url": "http://127.0.0.1:8080",
-    }
+    },
 ]
 ```
   
@@ -189,6 +189,7 @@ def yes_or_no_filter(context, response):
   
   - allow_format_str_template (bool | None): Whether to allow format string template in the config. Default to false.
   - api_version (str | None): The api version. Default to None. E.g., "2024-02-01".
+  
 
 **Raises**:
 

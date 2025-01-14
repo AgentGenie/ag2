@@ -26,35 +26,32 @@ Gather usage summary from all agents.
 
 **Example**:
 
-  
 ```python
 {
-    "usage_including_cached_inference" : {
+    "usage_including_cached_inference": {
         "total_cost": 0.0006090000000000001,
         "gpt-35-turbo": {
-                "cost": 0.0006090000000000001,
-                "prompt_tokens": 242,
-                "completion_tokens": 123,
-                "total_tokens": 365
+            "cost": 0.0006090000000000001,
+            "prompt_tokens": 242,
+            "completion_tokens": 123,
+            "total_tokens": 365,
         },
     },
-
-    "usage_excluding_cached_inference" : {
+    "usage_excluding_cached_inference": {
         "total_cost": 0.0006090000000000001,
         "gpt-35-turbo": {
-                "cost": 0.0006090000000000001,
-                "prompt_tokens": 242,
-                "completion_tokens": 123,
-                "total_tokens": 365
+            "cost": 0.0006090000000000001,
+            "prompt_tokens": 242,
+            "completion_tokens": 123,
+            "total_tokens": 365,
         },
-    }
+    },
 }
 ```
   
 
 **Notes**:
 
-  
   If none of the agents incurred any cost (not having a client), then the usage_including_cached_inference and usage_excluding_cached_inference will be `{'total_cost': 0}`.
 
 ### parse\_tags\_from\_content
