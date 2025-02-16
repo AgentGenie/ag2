@@ -100,8 +100,8 @@
           # Convert multiple spaces to single space but preserve intended line breaks
           description = ' '.join(description.split())
           # Escape { and < characters to prevent it from being interpreted as special markdown characters
-          description = description.replace('{', '\{').replace("<", "&lt;")
-          default = default.replace('{', '\{').replace("<", "&lt;")
+          description = description.replace('{', '\{').replace("<", "").replace("```python ", "```")
+          default = default.replace('{', '\{').replace("<", "")
           # Add line breaks before numbered points
           description = re.sub(r'(?<!\d)\. ', '.<br/><br/>', description)
 
@@ -117,6 +117,42 @@
           ret_val = "<b>Parameters:</b>" + "\n" + table
 
       return ret_val
+%>
+
+<%!
+def clean_docstring(text):
+    """Format docstring text with consistent line breaks and safe characters.
+
+    Args:
+        text: The docstring text to clean
+
+    Returns:
+        Cleaned text with:
+        - Escaped special characters
+        - Single newlines after periods/colons converted to HTML breaks
+        - Code blocks properly formatted
+    """
+    if not text:
+        return ''
+
+    # Step 1: Escape special characters that could cause rendering issues
+    text = text.replace('{', '\\{')  # Escape curly braces
+
+    # Enclose angle brackets like <agent> or <some.text> that aren't HTML tags (e.g., <item />) or already in ``
+    text = re.sub(r'(?<!`)<([^/\s>]+)(?:\s[^>]*)?>(?!`)', lambda m: f'`{m.group(0)}`', text)
+
+    # Step 2: Convert single newlines to HTML breaks, but preserve paragraphs
+    # Period followed by newline -> period + break
+    text = re.sub(r'\.\s*\n(?!\n)', '.<br/>', text)
+
+    # Colon followed by newline -> colon + break
+    text = re.sub(r':\s*\n(?!\n)', ': <br/>', text)
+
+    # Step 3: Fix code block formatting
+    # Ensure code blocks start on new lines, not after breaks
+    text = text.replace('<br/>```python', '\n```python')
+
+    return text
 %>
 
 <%def name="deflist(s)">
@@ -173,9 +209,20 @@ ${indent(s)}
 %>
 
 <%def name="function(func)" buffered="True">
+
+<%
+    metadata = "" if func.cls else f"""
+---
+sidebarTitle: {func.name}
+title: {func.module.name}.{func.name}
+---
+"""
+%>
+
+${metadata}
+
 <code class="doc-symbol doc-symbol-heading doc-symbol-${func.cls and 'method' or 'function'}"></code>
 ${'####'} ${func.name}
-<a href="#${func.module.name}.${func.cls.name if func.cls else ''}.${func.name}" class="headerlink" title="Permanent link"></a>
 
 <%
         returns = show_type_annotations and func.return_annotation() or ''
@@ -186,8 +233,7 @@ ${'####'} ${func.name}
         else:
             signature = f"{func.name}({', '.join(params)}) -> {returns}"
 
-        signature = signature.replace('{', '\{').replace("<", "&lt;")
-        cleaned_docstring = func.docstring.replace('{', '\{').replace("<", "&lt;")
+        cleaned_docstring = clean_docstring(func.docstring)
 %>
 ```python
 ${signature}
@@ -196,11 +242,11 @@ ${signature}
 ${cleaned_docstring | deflist}
 
 % if len(params) > 0:
-${format_param_table(params, cleaned_docstring)}
+${format_param_table(params, func.docstring)}
 % endif
 
 % if returns:
-${format_returns_table(returns, cleaned_docstring)}
+${format_returns_table(returns, func.docstring)}
 % endif
 
 <br />
@@ -210,15 +256,13 @@ ${format_returns_table(returns, cleaned_docstring)}
 
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>
 ${'####'} ${var.name}
-<a href="#${var.module.name}.${var.cls.name if var.cls else ''}.${var.name}" class="headerlink" title="Permanent link"></a>
-
-
+<br />
 <%
         annot = show_type_annotations and var.type_annotation() or ''
         if annot:
             annot = f"({annot}) "
 
-        cleaned_docstring = var.docstring.replace('{', '\{').replace("<", "&lt;")
+        cleaned_docstring = clean_docstring(var.docstring)
         if not cleaned_docstring:
             cleaned_docstring = '<br />'
 %>
@@ -226,11 +270,14 @@ ${cleaned_docstring | deflist}
 </%def>
 
 <%def name="class_(cls)" buffered="True">
-    <h2 id="${cls.module.name}.${cls.name}" class="doc doc-heading">
-        <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>
-        <span class="doc doc-object-name doc-class-name">${cls.name}</span>
-        <a href="#${cls.module.name}.${cls.name}" class="headerlink" title="Permanent link"></a>
-    </h2>
+---
+sidebarTitle: ${cls.name}
+title: ${cls.module.name}.${cls.name}
+---
+<h2 id="${cls.module.name}.${cls.name}" class="doc doc-heading">
+    <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>
+    <span class="doc doc-object-name doc-class-name">${cls.name}</span>
+</h2>
 
 <%
    params = cls.params(annotate=show_type_annotations)
@@ -239,10 +286,10 @@ ${cleaned_docstring | deflist}
        signature = f"{cls.name}(\n    {formatted_params}\n)"
    else:
        signature = f"{cls.name}({', '.join(params)})"
-   signature = signature.replace('{', '\{').replace("<", "&lt;")
 
-   cleaned_docstring = cls.docstring.replace('{', '\{').replace("<", "&lt;")
+   cleaned_docstring = clean_docstring(cls.docstring)
 %>
+
 ```python
 ${signature}
 ```
@@ -299,18 +346,23 @@ ${function(m)}
   submodules = module.submodules()
   heading = 'Namespace' if module.is_namespace else 'Module'
   symbol_name = module.name.split('.')[-1]
+
+  # filter out if module name is not the same
+  classes = [c for c in classes if c.__module__ != "autogen"]
 %>
 
+% if submodules:
+**** SUBMODULE_START ****
 ---
-sidebarTitle: ${symbol_name}
+sidebarTitle: overview
 title: ${module.name}
 ---
 
-% if submodules:
 ${h2('Sub-modules')}
     % for m in submodules:
 * ${m.name}
     % endfor
+**** SUBMODULE_END ****
 % endif
 
 % if variables:
@@ -324,14 +376,18 @@ ${variable(v)}
 % if functions:
 ${h2('Functions')}
     % for f in functions:
+**** SYMBOL_START ****
 ${function(f)}
+**** SYMBOL_END ****
 
     % endfor
 % endif
 
 % if classes:
     % for c in classes:
+**** SYMBOL_START ****
 ${class_(c)}
+**** SYMBOL_END ****
 
     % endfor
 % endif
