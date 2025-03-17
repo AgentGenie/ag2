@@ -143,7 +143,7 @@ config_list = [
 
 from pathlib import Path
 
-from autogen import AssistantAgent, UserProxyAgent
+from autogen import AssistantAgent, UserProxyAgent, LLMConfig
 from autogen.coding import LocalCommandLineCodeExecutor
 
 # Setting up the code executor
@@ -179,7 +179,7 @@ IMPORTANT: If it has executed successfully, ONLY output 'FINISH'."""
 assistant_agent = AssistantAgent(
     name="Ollama Assistant",
     system_message=system_message,
-    llm_config={"config_list": config_list},
+    llm_config=LLMConfig(config_list=config_list),
 )
 
 # Start the chat, with the UserProxyAgent asking the AssistantAgent the message
@@ -266,7 +266,7 @@ To use manual tool calling set `native_tool_calls` to `False`.
 
 ## Reducing repetitive tool calls
 
-By incorporating tools into a conversation, LLMs can often continually recommend them to be called, even after they've been called and a result returned. This can lead to a never ending cycle of tool calls.
+By incorporating tools into a conversation, LLMs can often continually recommend them to be called, even after they've been called and a result returned. This can lead to a never-ending cycle of tool calls.
 
 To remove the chance of an LLM recommending a tool call, an additional parameter called `hide_tools` can be used to specify when tools are hidden from the LLM. The string values for the parameter are:
 
@@ -336,7 +336,7 @@ chatbot = autogen.AssistantAgent(
             "parameter_4_name": 123.00,
         }.
         Output 'HAVE FUN!' when an answer has been provided.""",
-    llm_config={"config_list": config_list},
+    llm_config=autogen.LLMConfig(config_list=config_list),
 )
 
 # Note that we have changed the termination string to be "HAVE FUN!"

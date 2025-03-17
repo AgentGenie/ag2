@@ -14,17 +14,17 @@ To get started, ensure you meet the following requirements:
 1. Install the AG2 package:
     - Run the following command to install the [AG2](https://pypi.org/project/ag2/) package:
     ```bash
-    pip install ag2
+    pip install ag2[openai]
     ```
 
     <Tip>
     If you have been using `autogen` or `pyautogen`, all you need to do is upgrade it using:
     ```bash
-    pip install -U autogen
+    pip install -U autogen[openai]
     ```
     or
     ```bash
-    pip install -U pyautogen
+    pip install -U pyautogen[openai]
     ```
     as `pyautogen`, `autogen`, and `ag2` are aliases for the same PyPI package.
     </Tip>
@@ -100,7 +100,7 @@ config_list = [
 
 from pathlib import Path
 
-from autogen import AssistantAgent, UserProxyAgent
+from autogen import AssistantAgent, UserProxyAgent, LLMConfig
 from autogen.coding import LocalCommandLineCodeExecutor
 
 # Setting up the code executor
@@ -131,7 +131,7 @@ IMPORTANT: Wait for the user to execute your code and then you can reply with th
 assistant_agent = AssistantAgent(
     name="DeepSeek_Assistant",
     system_message=system_message,
-    llm_config={"config_list": config_list},
+    llm_config=LLMConfig(config_list=config_list),
 )
 
 # Start the chat, with the UserProxyAgent asking the AssistantAgent the message
@@ -240,7 +240,7 @@ chatbot = autogen.AssistantAgent(
     system_message="""For currency exchange and weather forecasting tasks,
         only use the functions you have been provided with.
         Output 'HAVE FUN!' when an answer has been provided.""",
-    llm_config={"config_list": config_list},
+    llm_config=autogen.LLMConfig(config_list=config_list),
 )
 
 # Note that we have changed the termination string to be "HAVE FUN!"

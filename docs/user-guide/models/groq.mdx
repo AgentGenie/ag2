@@ -5,11 +5,33 @@ sidebarTitle: Groq
 
 [Groq](https://groq.com/) is a cloud based platform serving a number of popular open weight models at high inference speeds. Models include Meta's Llama 3, Mistral AI's Mixtral, and Google's Gemma.
 
-Although Groq's API is aligned well with OpenAI's, which is the native API used by AG2, this library provides the ability to set specific parameters as well as track API costs.
+Although Groq's API is aligned well with OpenAI's, AG2's library provides the ability to set specific parameters as well as track API costs.
 
 You will need a Groq account and create an API key. [See their website for further details](https://groq.com/).
 
 Groq provides a number of models to use, included below. See the list of [models here (requires login)](https://console.groq.com/docs/models).
+
+## Requirements
+
+To get started, ensure you meet the following requirements:
+
+1. Install the AG2 package with the OpenAI package as Groq utilizes it:
+    - Run the following command to install the [AG2](https://pypi.org/project/ag2/) package:
+    ```bash
+    pip install ag2[openai]
+    ```
+
+    <Tip>
+    If you have been using `autogen` or `pyautogen`, all you need to do is upgrade it using:
+    ```bash
+    pip install -U autogen[openai]
+    ```
+    or
+    ```bash
+    pip install -U pyautogen[openai]
+    ```
+    as `pyautogen`, `autogen`, and `ag2` are aliases for the same PyPI package.
+    </Tip>
 
 See the sample `OAI_CONFIG_LIST` below showing how the Groq client class is used by specifying the `api_type` as `groq`.
 
@@ -114,7 +136,7 @@ config_list = [
 
 from pathlib import Path
 
-from autogen import AssistantAgent, UserProxyAgent
+from autogen import AssistantAgent, UserProxyAgent, LLMConfig
 from autogen.coding import LocalCommandLineCodeExecutor
 
 # Setting up the code executor
@@ -145,7 +167,7 @@ IMPORTANT: Wait for the user to execute your code and then you can reply with th
 assistant_agent = AssistantAgent(
     name="Groq Assistant",
     system_message=system_message,
-    llm_config={"config_list": config_list},
+    llm_config=LLMConfig(config_list=config_list),
 )
 
 # Start the chat, with the UserProxyAgent asking the AssistantAgent the message
@@ -238,7 +260,7 @@ chatbot = autogen.AssistantAgent(
     system_message="""For currency exchange and weather forecasting tasks,
         only use the functions you have been provided with.
         Output 'HAVE FUN!' when an answer has been provided.""",
-    llm_config={"config_list": config_list},
+    llm_config=autogen.LLMConfig(config_list=config_list),
 )
 
 # Note that we have changed the termination string to be "HAVE FUN!"
